@@ -1,20 +1,23 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import MetaData
+from sqlalchemy import Column, Integer, String, ForeignKey, Float
+
+from sqlalchemy.orm import relationship
 from sqlalchemy_serializer import SerializerMixin
 
-metadata = MetaData(naming_convention={
-    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-})
-
-db = SQLAlchemy(metadata=metadata)
+db = SQLAlchemy()
 
 class Bakery(db.Model, SerializerMixin):
     __tablename__ = 'bakeries'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    baked_goods = relationship('BakedGood', backref='bakery', cascade='all, delete-orphan')
 
 class BakedGood(db.Model, SerializerMixin):
     __tablename__ = 'baked_goods'
 
-    id = db.Column(db.Integer, primary_key=True)
-    
+    id = Column(Integer, primary_key=True)
+    name = Column(String)  # Add the name attribute
+    bakery_id = Column(Integer, ForeignKey('bakeries.id'))
+    price = Column(Float)
+
